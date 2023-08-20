@@ -1,5 +1,6 @@
 package com.example.myapi.presentation
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -17,12 +18,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapi.presentation.ui.theme.MyAPITheme
 import kotlinx.coroutines.flow.collectLatest
 
 class MainActivity : ComponentActivity() {
+
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +37,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
+
                     val composeViewModel by viewModels<ComposeViewModel>()
                     LaunchedEffect(key1 = true) {
                         composeViewModel.sharedFlow.collectLatest {

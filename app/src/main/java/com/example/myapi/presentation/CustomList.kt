@@ -10,7 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.myapi.presentation.model.CustomUiModel
+import com.example.myapi.domain.model.CustomUiModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

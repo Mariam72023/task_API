@@ -1,4 +1,4 @@
-package com.example.myapi.presentation.model
+package com.example.myapi.domain.model
 
 
 

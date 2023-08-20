@@ -5,13 +5,22 @@ import androidx.lifecycle.viewModelScope
 import com.example.myapi.data.model.LoginRequest
 import com.example.myapi.data.model.ProductRequest
 import com.example.myapi.data.model.users.User
-import com.example.myapi.data.network.NetworkServices
-import com.example.myapi.presentation.model.CustomUiModel
+import com.example.myapi.domain.*
+import com.example.myapi.domain.model.CustomUiModel
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
-class ComposeViewModel : BaseViewModel() {
+class ComposeViewModel(
+    val getProductUseCase: GetProductUseCase = GetProductUseCase(),
+    val addNewProductUseCase: AddNewProductUseCase = AddNewProductUseCase(),
+    val deleteProductUseCase: DeleteProductUseCase = DeleteProductUseCase(),
+    val updateProductUseCase: UpdateProductUseCase = UpdateProductUseCase(),
+    val getUserUseCase: GetUserUseCase = GetUserUseCase(),
+    val searchProductUseCase: SearchProductUseCase = SearchProductUseCase(),
+    val loginUseCase: LoginUseCase = LoginUseCase(),
+    val saveTokenUseCase: SaveTokenUseCase = SaveTokenUseCase(),
+    val getTokenUseCase: GetTokenUseCase = GetTokenUseCase(),
+) : BaseViewModel() {
+
     var textCheck = mutableStateOf("checked")
     var textValue =
         mutableStateOf("")
@@ -26,15 +35,14 @@ class ComposeViewModel : BaseViewModel() {
 
     var productList = mutableStateOf<List<CustomUiModel>>(emptyList())
     var userList = mutableStateOf<List<User>>(emptyList())
-    var retrofit = Retrofit.Builder().baseUrl("https://dummyjson.com/")
-        .addConverterFactory(GsonConverterFactory.create()).build()
-    val network = retrofit.create(NetworkServices::class.java)
-   // val apiKey = "API_KEY"
+
+
+    // val apiKey = "API_KEY"
 
 
     fun getUsers() {
         viewModelScope.launch {
-            val users = network.getUserList()
+            val users = getUserUseCase.getUsers()
             userList.value = users.users
 
         }
@@ -42,29 +50,27 @@ class ComposeViewModel : BaseViewModel() {
 
     fun addProduct() {
         viewModelScope.launch {
-            network.addNewProduct(ProductRequest("asd asd"))
+            addNewProductUseCase.addNewProduct(ProductRequest("asd asd"))
         }
     }
 
     fun updateProduct() {
         viewModelScope.launch {
-            network.updateProduct(ProductRequest("asd asd"), 3)
+            updateProductUseCase.updateProduct(ProductRequest("asd asd"), 3)
         }
     }
 
     fun deleteProduct() {
         viewModelScope.launch {
-            network.deleteProduct(5)
+            deleteProductUseCase.deleteProduct(5)
         }
     }
 
     fun searchForProduct() {
         try {
             viewModelScope.launch {
-                val products = network.searchForProductList("apple")
-                productList.value = products.products.map {
-                    CustomUiModel(headlineText = it.title, supportingText = it.description)
-                }
+                val products = searchProductUseCase.searchForProduct("apple")
+                productList.value = products
             }
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -73,17 +79,22 @@ class ComposeViewModel : BaseViewModel() {
 
     fun loginToken() {
         viewModelScope.launch(handler) {
-            val login = network.login(LoginRequest("kminchelle", "0lelplR"))
-            getAuthProducts(login.token)
+            val login = loginUseCase.login(LoginRequest("kminchelle", "0lelplR"))
+            saveTokenUseCase.saveToken(login.token)
+            getTokenUseCase.getToken()?.let {
+                getAuthProducts(it)
+            }
+
+
         }
     }
 
-   private fun getAuthProducts(token: String) {
-        viewModelScope.launch (handler){
-            val products = network.getProductList("Bearer $token")
-            productList.value = products.products.map {
-                CustomUiModel(headlineText = it.title, supportingText = it.description)
-            }
+    private fun getAuthProducts(token: String) {
+        viewModelScope.launch(handler) {
+            val products = getProductUseCase.getAuthProduct("Bearer $token")
+            productList.value = products
         }
     }
+
+
 }
